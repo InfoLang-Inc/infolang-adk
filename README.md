@@ -120,7 +120,9 @@ instead of it).
   `0.85` as a weak match; this class does not enforce that threshold for you
   — set `min_score=0.85` if you want it enforced).
 - **`add_session_to_memory(session)`** — ingests every event in the session
-  that has non-empty text content, one `remember_batch` call. Re-ingesting
+  that has non-empty text content, one `remember_batch` call (the SDK sends
+  it as a single `execute` round trip with one `remember` sub-op per event).
+  Re-ingesting
   the same session (e.g. because it gets called again after more turns)
   stores the events again rather than deduplicating or updating in place —
   InfoLang has no update-in-place primitive for `remember`. If you call this

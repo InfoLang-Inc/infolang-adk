@@ -9,7 +9,7 @@ from google.adk.memory.memory_entry import MemoryEntry
 from google.genai import types
 
 from infolang_adk import InfoLangMemoryService
-from tests.conftest import BASE_URL
+from tests.conftest import WS_URL, execute_ok, remember_ops
 
 
 def _entry(text: str, author: str | None = None, **metadata: object) -> MemoryEntry:
@@ -22,19 +22,8 @@ def _entry(text: str, author: str | None = None, **metadata: object) -> MemoryEn
 
 @respx.mock
 async def test_add_memory_ingests_explicit_entries(service: InfoLangMemoryService) -> None:
-    route = respx.post(f"{BASE_URL}/v1/execute").mock(
-        return_value=httpx.Response(
-            200,
-            json={
-                "results": [
-                    {
-                        "op": "remember_batch",
-                        "ok": True,
-                        "payload": {"results": [{"id": "m1"}, {"id": "m2"}]},
-                    }
-                ]
-            },
-        )
+    route = respx.post(f"{WS_URL}/execute").mock(
+        return_value=httpx.Response(200, json=execute_ok("m1", "m2"))
     )
 
     await service.add_memory(
@@ -49,8 +38,8 @@ async def test_add_memory_ingests_explicit_entries(service: InfoLangMemoryServic
 
     assert route.called
     body = json.loads(route.calls.last.request.content)
-    items = body["operations"][0]["args"]["items"]
-    assert body["operations"][0]["args"]["namespace"] == "adk-myapp-u1"
+    items = remember_ops(body)
+    assert all(item["namespace"] == "adk-myapp-u1" for item in items)
     assert items[0]["text"] == "fact one"
     assert "adk-author:user" in items[0]["tags"]
     assert "topic:billing" in items[0]["tags"]

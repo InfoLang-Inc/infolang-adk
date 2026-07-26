@@ -22,8 +22,8 @@ DEFAULT_NAMESPACE_PREFIX = "adk"
 
 # InfoLang namespaces are opaque strings; the runtime API does not publish a
 # formal charset restriction. This sanitizer keeps namespaces readable and
-# URL/query-string safe (recall/list_recent send namespace as a URL query
-# parameter) by keeping alphanumerics, dash, underscore, and dot, and
+# URL/query-string safe (the gateway's list route sends the namespace as a
+# URL query parameter) by keeping alphanumerics, dash, underscore, and dot, and
 # replacing everything else (including "/" and ":", which InfoLang uses
 # internally in some contexts) with a dash.
 _UNSAFE_CHARS = re.compile(r"[^a-zA-Z0-9_.-]+")
